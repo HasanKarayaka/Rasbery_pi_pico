@@ -1,0 +1,45 @@
+from machine import Pin
+import time
+
+bt1_flag = 0
+bt2_flag = 0
+
+buton1 = Pin(5, Pin.IN, Pin.PULL_UP)
+buton2 = Pin(6, Pin.IN, Pin.PULL_UP)
+led = Pin(7, Pin.OUT)
+
+def callback(pin):
+    global bt1_flag, bt2_flag
+
+    if pin == buton1:
+        bt1_flag += 1
+        print("bt1_flag", bt1_flag)
+    elif pin == buton2:
+        bt2_flag += 1
+        print("bt2_flag", bt2_flag)
+
+# Butonlara callback fonksiyonlarını atama
+buton1.irq(trigger=Pin.IRQ_FALLING, handler=callback)
+buton2.irq(trigger=Pin.IRQ_FALLING, handler=callback)
+
+while True:
+    if bt2_flag == 3:
+        led.value(1)
+        time.sleep(0.5)
+        led.value(0)
+        time.sleep(0.5)
+        bt2_flag = 0  # Flag'i sıfırla
+        bt1_flag = 0
+    elif bt1_flag == 5:
+        led.toggle()
+        bt1_flag = 0  # Flag'i sıfırla
+        bt2_flag = 0
+    elif bt1_flag == 1 and bt2_flag == 1:
+        led.toggle()
+        bt1_flag = 0  # Flag'i sıfırla
+        bt2_flag = 0
+        
+
+    # Programın devam etmesi için bir şeyler yapabilirsiniz
+    time.sleep(0.1)
+    
